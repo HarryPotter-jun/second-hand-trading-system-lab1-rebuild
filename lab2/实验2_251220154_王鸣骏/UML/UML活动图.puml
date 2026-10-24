@@ -1,0 +1,78 @@
+@startuml UML活动图
+' ================= 统一样式 =================
+skinparam defaultFontName "Microsoft YaHei"
+skinparam dpi 150
+skinparam shadowing false
+skinparam ArrowColor #333333
+skinparam ActivityBackgroundColor #FFFFFF
+skinparam ActivityBorderColor #4A5A6A
+skinparam ActivityDiamondBackgroundColor #FFF8DC
+skinparam noteBackgroundColor #FFF8DC
+skinparam SwimlaneWidth 200
+
+title 二手交易系统 活动图（商品发布 → 预约 → 线下交易完成 全流程）
+
+|卖家|
+start
+:创建商品草稿\n(标题/描述/分类/成色/价格/图片/取货方式);
+repeat
+  :填写并保存商品信息;
+  |#AntiqueWhite|系统|
+  :校验必填项、价格范围 (0, 100万]\n及60秒内重复提交(REQ-011);
+  backward :提示缺失或非法字段;
+repeat while (校验通过?) is (否) not (是)
+:卖家提交审核;
+|#AntiqueWhite|管理员|
+:审核商品信息;
+if (审核通过?) then (是)
+  |#AntiqueWhite|系统|
+  :商品状态 → 在售\n记录审核日志;
+else (否，驳回)
+  :商品退回草稿\n记录驳回原因;
+  note right
+    卖家修改后可
+    重新提交审核
+  end note
+  detach
+endif
+
+|#LightBlue|买家|
+:组合查询 / 浏览商品;
+:查看商品详情\n(获取当前状态与版本号 v);
+:提交预约请求(携带 v);
+|#AntiqueWhite|系统|
+:并发校验：商品在售 且 版本号 = v\n首个成功请求为准(REQ-008/012);
+if (预约成功?) then (是)
+  :商品 → 已预约，版本号 v+1\n创建预约记录(待确认)\n同一事务写入日志;
+else (否)
+  :提示"商品已被预约 / 状态已变化"\n要求刷新;
+  stop
+endif
+
+|卖家|
+:查看待确认预约;
+if (处理预约?) then (确认预约)
+  |#AntiqueWhite|系统|
+  :预约 → 已确认\n商品保持已预约;
+else (拒绝)
+  |#AntiqueWhite|系统|
+  :预约 → 已拒绝\n商品恢复在售(原子);
+  stop
+endif
+
+|#LightBlue|买家|
+note right
+  买家在卖家确认交付前
+  也可主动取消预约，
+  商品同样原子恢复在售
+  (REQ-009)
+end note
+:与卖家线下会面交付;
+|卖家|
+:确认交付;
+|#LightBlue|买家|
+:确认收货;
+|#AntiqueWhite|系统|
+:商品 → 已售出，预约 → 已完成\n(原子更新，版本号+1)\n记录交易确认日志;
+stop
+@enduml

@@ -1,0 +1,145 @@
+<!DOCTYPE html><html><head><meta charset='utf-8'><title>界面 5 · 买家预约与交易确认模块</title><style>
+* { margin:0; padding:0; box-sizing:border-box; font-family:"HarmonyOS Sans SC","MiSans","PingFang SC","Microsoft YaHei","Segoe UI",sans-serif; }
+body { background:#E7EBF1; padding:56px 64px 64px; }
+.title { font-size:44px; color:#171B26; font-weight:800; margin-bottom:10px; }
+.sub { font-size:24px; color:#6B7484; margin-bottom:44px; line-height:1.6; }
+.row { display:flex; gap:72px; align-items:flex-start; }
+.frame { display:flex; flex-direction:column; }
+.phone { width:720px; background:#F5F6FA; border:14px solid #171B26; border-radius:48px; overflow:hidden;
+         box-shadow:0 28px 70px rgba(23,27,38,.20); position:relative; display:flex; flex-direction:column; }
+.phone::before { content:""; position:absolute; top:0; left:50%; transform:translateX(-50%);
+                  width:216px; height:26px; background:#171B26; border-radius:0 0 22px 22px; z-index:9; }
+.statusbar { height:60px; display:flex; justify-content:space-between; align-items:center; padding:6px 40px 0;
+             font-size:22px; color:#171B26; font-weight:700; background:inherit; flex:none; }
+.caption { margin-top:26px; font-size:27px; color:#333B49; text-align:center; font-weight:700; }
+.caption small { display:block; font-size:22px; color:#7A8291; font-weight:500; margin-top:6px; }
+.screen { flex:1; display:flex; flex-direction:column; padding:16px 26px 0; }
+.navbar { display:flex; align-items:center; gap:14px; padding:18px 6px 16px; }
+.navbar .back { font-size:30px; color:#2A3140; }
+.navbar .t { font-size:34px; font-weight:800; color:#171B26; flex:1; }
+.navbar .act { font-size:25px; color:#FF6E2C; font-weight:700; }
+.card { background:#fff; border-radius:26px; padding:26px; box-shadow:0 6px 18px rgba(23,27,38,.05); }
+.hint { font-size:21px; color:#8A93A6; line-height:1.55; }
+.pill { display:inline-flex; align-items:center; padding:6px 18px; border-radius:999px; font-size:21px; font-weight:700; }
+.p-sale { background:#E5F7EC; color:#149A52; }
+.p-reserved { background:#FFF0E0; color:#E0741F; }
+.p-sold { background:#EDF0F4; color:#69738A; }
+.p-review { background:#E6EFFF; color:#2C6BD8; }
+.p-draft { background:#F0F2F6; color:#6C7689; }
+.p-off { background:#F2F3F6; color:#9AA2B4; }
+.p-violation { background:#FCEBEB; color:#D23030; }
+.btn { display:flex; align-items:center; justify-content:center; border-radius:999px; font-weight:800; font-size:27px; padding:22px 0; }
+.btn-primary { background:linear-gradient(92deg,#FF9A55,#FF6E2C); color:#fff; box-shadow:0 10px 22px rgba(255,110,44,.28); }
+.btn-ghost { background:#fff; color:#FF6E2C; border:3px solid #FFC5A3; }
+.btn-gray { background:#EEF0F4; color:#7A8291; }
+.btn-danger { background:#fff; color:#D23030; border:3px solid #F3B9B9; }
+.btn-disabled { background:#E9EBF0; color:#A6AEC0; box-shadow:none; }
+.input { background:#F2F3F7; border-radius:20px; padding:24px 26px; font-size:27px; color:#2A3140; width:100%;
+         border:3px solid transparent; outline:none; }
+.input.error { border-color:#E5484D; background:#FEF7F7; }
+.i-label { font-size:24px; color:#4A5264; font-weight:700; margin:22px 0 10px; }
+.err-text { font-size:21px; color:#E5484D; margin-top:8px; }
+.ok-text { font-size:21px; color:#149A52; margin-top:8px; }
+.chip { padding:14px 26px; border-radius:999px; background:#F0F2F6; color:#4A5264; font-size:24px; font-weight:700; }
+.chip.on { background:#FFE9DA; color:#FF5A1F; }
+.pgrid { display:grid; grid-template-columns:1fr 1fr; gap:20px; }
+.pcard { background:#fff; border-radius:24px; padding:16px 16px 20px; }
+.pthumb { height:250px; border-radius:18px; display:flex; align-items:center; justify-content:center; font-size:110px; }
+.ptitle { font-size:25px; font-weight:700; color:#252B39; margin:16px 2px 8px; line-height:1.35;
+          overflow:hidden; text-overflow:ellipsis; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; }
+.pprice { font-size:30px; color:#FF4D1C; font-weight:800; }
+.pprice small { font-size:21px; font-weight:700; }
+.pmeta { display:flex; justify-content:space-between; align-items:center; margin-top:12px; }
+.seller { font-size:21px; color:#8A93A6; }
+.tabbar { display:flex; background:#fff; border-top:2px solid #E8EBF1; padding:14px 0 30px; margin-top:auto; }
+.tab { flex:1; display:flex; flex-direction:column; align-items:center; gap:6px; font-size:20px; color:#98A0B3; font-weight:600; }
+.tab .ic { font-size:40px; }
+.tab.on { color:#FF5A1F; }
+.banner { border-radius:20px; padding:20px 24px; font-size:23px; line-height:1.5; }
+.list-row { display:flex; gap:20px; padding:22px 4px; align-items:center; }
+</style></head><body><div class='title'>界面 5 · 买家预约与交易确认模块</div><div class='sub'>按预约状态（待确认 / 已确认 / 已取消 / 已拒绝 / 已完成）展示本人预约与可用操作；预约详情以时间线呈现交易四步，收货确认按钮受“卖家已交付”前置约束。</div><div class='row'><div class="frame"><div class="phone" style="background:#F5F6FA"><div class="statusbar"><span>9:41</span><span>▮▮▯ &nbsp; ᯤ &nbsp; 🔋</span></div><div class="screen">
+<div class="navbar"><div class="back">‹</div><div class="t">我的预约</div></div>
+<div style="display:flex;gap:12px;margin:6px 0 18px;flex-wrap:wrap;">
+  <div class="chip on">全部 <span>4</span></div><div class="chip">待确认 <span>1</span></div>
+  <div class="chip">已确认 <span>1</span></div><div class="chip">已完成 <span>1</span></div>
+  <div class="chip">已取消</div>
+</div>
+<div class="card" style="padding:24px 26px;margin-bottom:20px;">
+  <div class="list-row" style="padding:0 0 18px;">
+    <div style="width:110px;height:110px;border-radius:18px;background:linear-gradient(135deg,#FFF1E0,#FFE3C2);
+                display:flex;align-items:center;justify-content:center;font-size:44px;flex:none;">🎸</div>
+    <div style="flex:1;">
+      <div style="font-size:26px;font-weight:700;">民谣吉他 入门款</div>
+      <div class="hint" style="margin-top:8px;">¥329 · 2026-10-22 14:08 预约</div>
+    </div>
+    <span class="pill p-reserved">待确认</span>
+  </div>
+  <div class="hint" style="margin-bottom:16px;">卖家确认交付前，您可随时取消预约，商品将恢复在售</div>
+  <div style="display:flex;gap:16px;">
+    <div class="btn btn-danger" style="flex:1;padding:16px 0;font-size:24px;">取消预约</div>
+    <div class="btn btn-disabled" style="flex:1;padding:16px 0;font-size:24px;">等待卖家确认</div>
+  </div>
+</div>
+<div class="card" style="padding:24px 26px;margin-bottom:20px;border:3px solid #FFE3C2;">
+  <div class="list-row" style="padding:0 0 18px;">
+    <div style="width:110px;height:110px;border-radius:18px;background:linear-gradient(135deg,#E9F9EF,#D2F2DE);
+                display:flex;align-items:center;justify-content:center;font-size:44px;flex:none;">🛴</div>
+    <div style="flex:1;">
+      <div style="font-size:26px;font-weight:700;">电动滑板车 九号F25</div>
+      <div class="hint" style="margin-top:8px;color:#149A52;">卖家已确认交付 ✓ 请线下验收后确认收货</div>
+    </div>
+    <span class="pill p-reserved">已确认</span>
+  </div>
+  <div class="btn btn-primary" style="padding:18px 0;font-size:25px;">✓ 确认收货</div>
+</div>
+<div class="card" style="padding:24px 26px;margin-bottom:20px;opacity:.85;">
+  <div class="list-row" style="padding:0;">
+    <div style="width:110px;height:110px;border-radius:18px;background:linear-gradient(135deg,#F1EDFC,#E4DCF9);
+                display:flex;align-items:center;justify-content:center;font-size:44px;flex:none;">🎧</div>
+    <div style="flex:1;">
+      <div style="font-size:26px;font-weight:700;">索尼 WH-1000XM4</div>
+      <div class="hint" style="margin-top:8px;">¥899 · 双方已确认，交易完成</div>
+    </div>
+    <span class="pill p-sold">已完成</span>
+  </div>
+</div>
+<div class="hint" style="text-align:center;margin-bottom:36px;">仅显示本人发起的预约；确认收货需在卖家确认交付之后（REQ-009 / REQ-010）</div>
+</div></div><div class="caption">① 我的预约（多状态列表）<small>按状态筛选 + 差异化操作按钮</small></div></div>
+<div class="frame"><div class="phone" style="background:#F5F6FA"><div class="statusbar"><span>9:41</span><span>▮▮▯ &nbsp; ᯤ &nbsp; 🔋</span></div><div class="screen">
+<div class="navbar"><div class="back">‹</div><div class="t">预约详情</div></div>
+<div class="card">
+  <div class="list-row" style="padding:0 0 20px;border-bottom:2px solid #F1F3F7;">
+    <div style="width:120px;height:120px;border-radius:18px;background:linear-gradient(135deg,#E9F9EF,#D2F2DE);
+                display:flex;align-items:center;justify-content:center;font-size:48px;flex:none;">🛴</div>
+    <div style="flex:1;">
+      <div style="font-size:27px;font-weight:700;">电动滑板车 九号F25</div>
+      <div class="hint" style="margin-top:8px;">¥1,050 · 卖家 骑行社 · 校内自取</div>
+    </div>
+    <span class="pill p-reserved">已确认</span>
+  </div>
+  <div style="font-size:25px;font-weight:800;margin:24px 0 20px;">交易进度</div>
+  <div class="step" style="margin-bottom:22px;">
+    <div class="dot" style="background:#E5F7EC;color:#149A52;">✓</div>
+    <div><div style="font-size:24px;font-weight:700;">提交预约</div>
+         <div class="hint">10-21 09:12 · 商品转为「已预约」（版本 v5→v6）</div></div>
+  </div>
+  <div class="step" style="margin-bottom:22px;">
+    <div class="dot" style="background:#E5F7EC;color:#149A52;">✓</div>
+    <div><div style="font-size:24px;font-weight:700;">卖家确认预约</div>
+         <div class="hint">10-21 15:40 · 预约转为「已确认」</div></div>
+  </div>
+  <div class="step" style="margin-bottom:22px;">
+    <div class="dot" style="background:#E5F7EC;color:#149A52;">✓</div>
+    <div><div style="font-size:24px;font-weight:700;">卖家确认交付</div>
+         <div class="hint">10-23 18:02 · 线下已完成交付</div></div>
+  </div>
+  <div class="step">
+    <div class="dot" style="background:#FF9A55;color:#fff;">4</div>
+    <div><div style="font-size:24px;font-weight:700;color:#FF5A1F;">买家确认收货（待您操作）</div>
+         <div class="hint">确认后商品转为「已售出」，预约转为「已完成」</div></div>
+  </div>
+</div>
+<div class="btn btn-primary" style="margin-top:30px;">✓ 确认收货并完成交易</div>
+<div class="btn btn-disabled" style="margin-top:16px;">取消预约（卖家已确认交付，不可取消）</div>
+<div class="hint" style="text-align:center;margin:20px 0 36px;">确认操作原子完成：商品 / 预约 / 日志任一写入失败将整体回滚（REQ-019）</div>
+</div></div><div class="caption">② 预约详情（交易时间线）<small>四步进度 + 前置条件约束</small></div></div></div></body></html>

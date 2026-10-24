@@ -1,0 +1,140 @@
+<!DOCTYPE html><html><head><meta charset='utf-8'><title>界面 7 · 个人中心与收藏模块</title><style>
+* { margin:0; padding:0; box-sizing:border-box; font-family:"HarmonyOS Sans SC","MiSans","PingFang SC","Microsoft YaHei","Segoe UI",sans-serif; }
+body { background:#E7EBF1; padding:56px 64px 64px; }
+.title { font-size:44px; color:#171B26; font-weight:800; margin-bottom:10px; }
+.sub { font-size:24px; color:#6B7484; margin-bottom:44px; line-height:1.6; }
+.row { display:flex; gap:72px; align-items:flex-start; }
+.frame { display:flex; flex-direction:column; }
+.phone { width:720px; background:#F5F6FA; border:14px solid #171B26; border-radius:48px; overflow:hidden;
+         box-shadow:0 28px 70px rgba(23,27,38,.20); position:relative; display:flex; flex-direction:column; }
+.phone::before { content:""; position:absolute; top:0; left:50%; transform:translateX(-50%);
+                  width:216px; height:26px; background:#171B26; border-radius:0 0 22px 22px; z-index:9; }
+.statusbar { height:60px; display:flex; justify-content:space-between; align-items:center; padding:6px 40px 0;
+             font-size:22px; color:#171B26; font-weight:700; background:inherit; flex:none; }
+.caption { margin-top:26px; font-size:27px; color:#333B49; text-align:center; font-weight:700; }
+.caption small { display:block; font-size:22px; color:#7A8291; font-weight:500; margin-top:6px; }
+.screen { flex:1; display:flex; flex-direction:column; padding:16px 26px 0; }
+.navbar { display:flex; align-items:center; gap:14px; padding:18px 6px 16px; }
+.navbar .back { font-size:30px; color:#2A3140; }
+.navbar .t { font-size:34px; font-weight:800; color:#171B26; flex:1; }
+.navbar .act { font-size:25px; color:#FF6E2C; font-weight:700; }
+.card { background:#fff; border-radius:26px; padding:26px; box-shadow:0 6px 18px rgba(23,27,38,.05); }
+.hint { font-size:21px; color:#8A93A6; line-height:1.55; }
+.pill { display:inline-flex; align-items:center; padding:6px 18px; border-radius:999px; font-size:21px; font-weight:700; }
+.p-sale { background:#E5F7EC; color:#149A52; }
+.p-reserved { background:#FFF0E0; color:#E0741F; }
+.p-sold { background:#EDF0F4; color:#69738A; }
+.p-review { background:#E6EFFF; color:#2C6BD8; }
+.p-draft { background:#F0F2F6; color:#6C7689; }
+.p-off { background:#F2F3F6; color:#9AA2B4; }
+.p-violation { background:#FCEBEB; color:#D23030; }
+.btn { display:flex; align-items:center; justify-content:center; border-radius:999px; font-weight:800; font-size:27px; padding:22px 0; }
+.btn-primary { background:linear-gradient(92deg,#FF9A55,#FF6E2C); color:#fff; box-shadow:0 10px 22px rgba(255,110,44,.28); }
+.btn-ghost { background:#fff; color:#FF6E2C; border:3px solid #FFC5A3; }
+.btn-gray { background:#EEF0F4; color:#7A8291; }
+.btn-danger { background:#fff; color:#D23030; border:3px solid #F3B9B9; }
+.btn-disabled { background:#E9EBF0; color:#A6AEC0; box-shadow:none; }
+.input { background:#F2F3F7; border-radius:20px; padding:24px 26px; font-size:27px; color:#2A3140; width:100%;
+         border:3px solid transparent; outline:none; }
+.input.error { border-color:#E5484D; background:#FEF7F7; }
+.i-label { font-size:24px; color:#4A5264; font-weight:700; margin:22px 0 10px; }
+.err-text { font-size:21px; color:#E5484D; margin-top:8px; }
+.ok-text { font-size:21px; color:#149A52; margin-top:8px; }
+.chip { padding:14px 26px; border-radius:999px; background:#F0F2F6; color:#4A5264; font-size:24px; font-weight:700; }
+.chip.on { background:#FFE9DA; color:#FF5A1F; }
+.pgrid { display:grid; grid-template-columns:1fr 1fr; gap:20px; }
+.pcard { background:#fff; border-radius:24px; padding:16px 16px 20px; }
+.pthumb { height:250px; border-radius:18px; display:flex; align-items:center; justify-content:center; font-size:110px; }
+.ptitle { font-size:25px; font-weight:700; color:#252B39; margin:16px 2px 8px; line-height:1.35;
+          overflow:hidden; text-overflow:ellipsis; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; }
+.pprice { font-size:30px; color:#FF4D1C; font-weight:800; }
+.pprice small { font-size:21px; font-weight:700; }
+.pmeta { display:flex; justify-content:space-between; align-items:center; margin-top:12px; }
+.seller { font-size:21px; color:#8A93A6; }
+.tabbar { display:flex; background:#fff; border-top:2px solid #E8EBF1; padding:14px 0 30px; margin-top:auto; }
+.tab { flex:1; display:flex; flex-direction:column; align-items:center; gap:6px; font-size:20px; color:#98A0B3; font-weight:600; }
+.tab .ic { font-size:40px; }
+.tab.on { color:#FF5A1F; }
+.banner { border-radius:20px; padding:20px 24px; font-size:23px; line-height:1.5; }
+.list-row { display:flex; gap:20px; padding:22px 4px; align-items:center; }
+</style></head><body><div class='title'>界面 7 · 个人中心与收藏模块</div><div class='sub'>个人中心聚合角色标签、交易统计与本人业务清单入口；收藏列表实时同步商品当前状态（在售可预约、已售出/已下架仅保留历史），不提供社交化功能。</div><div class='row'><div class="frame"><div class="phone" style="background:#F5F6FA"><div class="statusbar"><span>9:41</span><span>▮▮▯ &nbsp; ᯤ &nbsp; 🔋</span></div><div class="screen">
+<div style="padding:26px 6px 0;display:flex;align-items:center;gap:24px;">
+  <div style="width:128px;height:128px;border-radius:999px;background:linear-gradient(135deg,#FFD9BE,#FFB98C);
+              display:flex;align-items:center;justify-content:center;font-size:58px;">🧑‍🎓</div>
+  <div style="flex:1;">
+    <div style="display:flex;align-items:center;gap:14px;">
+      <span style="font-size:36px;font-weight:800;">鸣骏Max</span>
+      <span class="pill p-review" style="font-size:19px;">买家</span>
+      <span class="pill p-review" style="font-size:19px;background:#FFE9DA;color:#FF5A1F;">卖家</span>
+    </div>
+    <div class="hint" style="margin-top:10px;">手机号 138****6621 · 用户名可修改，允许重复</div>
+  </div>
+</div>
+<div class="card" style="margin-top:26px;display:flex;padding:26px 0;">
+  <div style="flex:1;text-align:center;border-right:2px solid #F1F3F7;">
+    <div style="font-size:40px;font-weight:800;color:#171B26;">5</div><div class="hint">在售商品</div>
+  </div>
+  <div style="flex:1;text-align:center;border-right:2px solid #F1F3F7;">
+    <div style="font-size:40px;font-weight:800;color:#171B26;">2</div><div class="hint">进行中预约</div>
+  </div>
+  <div style="flex:1;text-align:center;">
+    <div style="font-size:40px;font-weight:800;color:#171B26;">9</div><div class="hint">收藏</div>
+  </div>
+</div>
+<div class="card" style="margin-top:22px;padding:8px 26px;">
+  <div class="list-row" style="border-bottom:2px solid #F1F3F7;">
+    <span style="font-size:34px;">🏪</span><span style="flex:1;font-size:26px;font-weight:700;">我发布的商品</span><span class="hint">›</span>
+  </div>
+  <div class="list-row" style="border-bottom:2px solid #F1F3F7;">
+    <span style="font-size:34px;">📮</span><span style="flex:1;font-size:26px;font-weight:700;">我发起的预约</span><span class="hint">›</span>
+  </div>
+  <div class="list-row" style="border-bottom:2px solid #F1F3F7;">
+    <span style="font-size:34px;">❤️</span><span style="flex:1;font-size:26px;font-weight:700;">我的收藏</span><span class="hint">›</span>
+  </div>
+  <div class="list-row">
+    <span style="font-size:34px;">✏️</span><span style="flex:1;font-size:26px;font-weight:700;">修改用户名</span><span class="hint">›</span>
+  </div>
+</div>
+<div class="banner" style="background:#EDF0F4;color:#69738A;margin-top:22px;">
+  ℹ️ 个人中心仅提供与交易直接相关的清单，不提供关注 / 粉丝 / 动态等社交功能（REQ-025）。
+</div>
+<div class="btn btn-gray" style="margin:26px 0 36px;">退出登录</div>
+</div></div><div class="caption">① 个人中心主页<small>双角色标签 + 交易统计 + 业务清单入口</small></div></div>
+<div class="frame"><div class="phone" style="background:#F5F6FA"><div class="statusbar"><span>9:41</span><span>▮▮▯ &nbsp; ᯤ &nbsp; 🔋</span></div><div class="screen">
+<div class="navbar"><div class="back">‹</div><div class="t">我的收藏</div></div>
+<div class="card" style="padding:10px 26px;">
+  <div class="list-row" style="border-bottom:2px solid #F1F3F7;">
+    <div style="width:120px;height:120px;border-radius:18px;background:linear-gradient(135deg,#E9F9EF,#D2F2DE);
+                display:flex;align-items:center;justify-content:center;font-size:48px;flex:none;">📖</div>
+    <div style="flex:1;">
+      <div style="font-size:26px;font-weight:700;">算法导论 第三版 中文版</div>
+      <div class="hint" style="margin-top:8px;">¥68 · 学长书店 · 99新</div>
+      <div style="margin-top:10px;"><span class="pill p-sale">在售</span></div>
+    </div>
+    <div class="chip">♡ 取消</div>
+  </div>
+  <div class="list-row" style="border-bottom:2px solid #F1F3F7;">
+    <div style="width:120px;height:120px;border-radius:18px;background:linear-gradient(135deg,#F1EDFC,#E4DCF9);
+                display:flex;align-items:center;justify-content:center;font-size:48px;flex:none;">🎧</div>
+    <div style="flex:1;">
+      <div style="font-size:26px;font-weight:700;">索尼 WH-1000XM4</div>
+      <div class="hint" style="margin-top:8px;">¥899 · 阿澈 · 95新</div>
+      <div style="margin-top:10px;"><span class="pill p-sold">已售出</span></div>
+    </div>
+    <div class="chip">♡ 取消</div>
+  </div>
+  <div class="list-row">
+    <div style="width:120px;height:120px;border-radius:18px;background:linear-gradient(135deg,#FFF1E0,#FFE3C2);
+                display:flex;align-items:center;justify-content:center;font-size:48px;flex:none;">🖨️</div>
+    <div style="flex:1;">
+      <div style="font-size:26px;font-weight:700;">惠普喷墨打印机</div>
+      <div class="hint" style="margin-top:8px;">¥150 · 打印室 · 8成新</div>
+      <div style="margin-top:10px;"><span class="pill p-off">已下架</span></div>
+    </div>
+    <div class="chip" style="background:#F0F2F6;color:#B4BAC7;">♡ 取消</div>
+  </div>
+</div>
+<div class="hint" style="text-align:center;margin:24px 0 36px;">
+  商品售出 / 下架后收藏历史保留，状态实时同步（REQ-023）；<br>同一商品重复收藏不会产生第二条记录
+</div>
+</div></div><div class="caption">② 我的收藏（状态同步）<small>收藏历史保留，状态实时同步</small></div></div></div></body></html>

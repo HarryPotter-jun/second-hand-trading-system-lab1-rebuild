@@ -1,0 +1,156 @@
+<!DOCTYPE html><html><head><meta charset='utf-8'><title>界面 8 · 管理员工作台模块（审核 / 举报 / 日志 / 统计）</title><style>
+* { margin:0; padding:0; box-sizing:border-box; font-family:"HarmonyOS Sans SC","MiSans","PingFang SC","Microsoft YaHei","Segoe UI",sans-serif; }
+body { background:#E7EBF1; padding:56px 64px 64px; }
+.title { font-size:44px; color:#171B26; font-weight:800; margin-bottom:10px; }
+.sub { font-size:24px; color:#6B7484; margin-bottom:44px; line-height:1.6; }
+.row { display:flex; gap:72px; align-items:flex-start; }
+.frame { display:flex; flex-direction:column; }
+.phone { width:720px; background:#F5F6FA; border:14px solid #171B26; border-radius:48px; overflow:hidden;
+         box-shadow:0 28px 70px rgba(23,27,38,.20); position:relative; display:flex; flex-direction:column; }
+.phone::before { content:""; position:absolute; top:0; left:50%; transform:translateX(-50%);
+                  width:216px; height:26px; background:#171B26; border-radius:0 0 22px 22px; z-index:9; }
+.statusbar { height:60px; display:flex; justify-content:space-between; align-items:center; padding:6px 40px 0;
+             font-size:22px; color:#171B26; font-weight:700; background:inherit; flex:none; }
+.caption { margin-top:26px; font-size:27px; color:#333B49; text-align:center; font-weight:700; }
+.caption small { display:block; font-size:22px; color:#7A8291; font-weight:500; margin-top:6px; }
+.screen { flex:1; display:flex; flex-direction:column; padding:16px 26px 0; }
+.navbar { display:flex; align-items:center; gap:14px; padding:18px 6px 16px; }
+.navbar .back { font-size:30px; color:#2A3140; }
+.navbar .t { font-size:34px; font-weight:800; color:#171B26; flex:1; }
+.navbar .act { font-size:25px; color:#FF6E2C; font-weight:700; }
+.card { background:#fff; border-radius:26px; padding:26px; box-shadow:0 6px 18px rgba(23,27,38,.05); }
+.hint { font-size:21px; color:#8A93A6; line-height:1.55; }
+.pill { display:inline-flex; align-items:center; padding:6px 18px; border-radius:999px; font-size:21px; font-weight:700; }
+.p-sale { background:#E5F7EC; color:#149A52; }
+.p-reserved { background:#FFF0E0; color:#E0741F; }
+.p-sold { background:#EDF0F4; color:#69738A; }
+.p-review { background:#E6EFFF; color:#2C6BD8; }
+.p-draft { background:#F0F2F6; color:#6C7689; }
+.p-off { background:#F2F3F6; color:#9AA2B4; }
+.p-violation { background:#FCEBEB; color:#D23030; }
+.btn { display:flex; align-items:center; justify-content:center; border-radius:999px; font-weight:800; font-size:27px; padding:22px 0; }
+.btn-primary { background:linear-gradient(92deg,#FF9A55,#FF6E2C); color:#fff; box-shadow:0 10px 22px rgba(255,110,44,.28); }
+.btn-ghost { background:#fff; color:#FF6E2C; border:3px solid #FFC5A3; }
+.btn-gray { background:#EEF0F4; color:#7A8291; }
+.btn-danger { background:#fff; color:#D23030; border:3px solid #F3B9B9; }
+.btn-disabled { background:#E9EBF0; color:#A6AEC0; box-shadow:none; }
+.input { background:#F2F3F7; border-radius:20px; padding:24px 26px; font-size:27px; color:#2A3140; width:100%;
+         border:3px solid transparent; outline:none; }
+.input.error { border-color:#E5484D; background:#FEF7F7; }
+.i-label { font-size:24px; color:#4A5264; font-weight:700; margin:22px 0 10px; }
+.err-text { font-size:21px; color:#E5484D; margin-top:8px; }
+.ok-text { font-size:21px; color:#149A52; margin-top:8px; }
+.chip { padding:14px 26px; border-radius:999px; background:#F0F2F6; color:#4A5264; font-size:24px; font-weight:700; }
+.chip.on { background:#FFE9DA; color:#FF5A1F; }
+.pgrid { display:grid; grid-template-columns:1fr 1fr; gap:20px; }
+.pcard { background:#fff; border-radius:24px; padding:16px 16px 20px; }
+.pthumb { height:250px; border-radius:18px; display:flex; align-items:center; justify-content:center; font-size:110px; }
+.ptitle { font-size:25px; font-weight:700; color:#252B39; margin:16px 2px 8px; line-height:1.35;
+          overflow:hidden; text-overflow:ellipsis; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; }
+.pprice { font-size:30px; color:#FF4D1C; font-weight:800; }
+.pprice small { font-size:21px; font-weight:700; }
+.pmeta { display:flex; justify-content:space-between; align-items:center; margin-top:12px; }
+.seller { font-size:21px; color:#8A93A6; }
+.tabbar { display:flex; background:#fff; border-top:2px solid #E8EBF1; padding:14px 0 30px; margin-top:auto; }
+.tab { flex:1; display:flex; flex-direction:column; align-items:center; gap:6px; font-size:20px; color:#98A0B3; font-weight:600; }
+.tab .ic { font-size:40px; }
+.tab.on { color:#FF5A1F; }
+.banner { border-radius:20px; padding:20px 24px; font-size:23px; line-height:1.5; }
+.list-row { display:flex; gap:20px; padding:22px 4px; align-items:center; }
+</style></head><body><div class='title'>界面 8 · 管理员工作台模块（审核 / 举报 / 日志 / 统计）</div><div class='sub'>审核页执行「通过上架 / 驳回退草稿」决策，驳回必填原因；运营页处理举报（驳回或违规下架）、按状态与分类查看统计、按四类条件检索成功与失败的操作日志。</div><div class='row'><div class="frame"><div class="phone" style="background:#F5F6FA"><div class="statusbar"><span>9:41</span><span>▮▮▯ &nbsp; ᯤ &nbsp; 🔋</span></div><div class="screen">
+<div class="navbar"><div class="t">审核工作台</div><div class="hint">管理员 · 胡老师</div></div>
+<div style="display:flex;gap:12px;margin:6px 0 18px;">
+  <div class="chip on">待审核 <span>2</span></div><div class="chip">举报 <span>3</span></div>
+  <div class="chip">日志</div><div class="chip">统计</div>
+</div>
+<div class="card" style="padding:24px 26px;margin-bottom:20px;">
+  <div class="list-row" style="padding:0 0 16px;">
+    <div style="width:110px;height:110px;border-radius:18px;background:linear-gradient(135deg,#E8F1FF,#D9E7FF);
+                display:flex;align-items:center;justify-content:center;font-size:44px;flex:none;">💻</div>
+    <div style="flex:1;">
+      <div style="font-size:26px;font-weight:700;">iPad Air 5 95新 深空灰</div>
+      <div class="hint" style="margin-top:8px;">¥2,399 · 卖家 阿明 · 10-22 提交</div>
+    </div>
+    <span class="pill p-review">待审核</span>
+  </div>
+  <div class="banner" style="background:#F7F8FA;color:#4A5264;margin-bottom:16px;">
+    图片 4 张 · 描述完整 · 价格合法 · 非 60 秒重复提交 ✓
+  </div>
+  <div style="display:flex;gap:16px;">
+    <div class="btn btn-danger" style="flex:1;padding:16px 0;font-size:24px;">驳回</div>
+    <div class="btn btn-primary" style="flex:1;padding:16px 0;font-size:24px;">通过并上架</div>
+  </div>
+</div>
+<div class="card" style="padding:24px 26px;margin-bottom:20px;border:3px solid #F3B9B9;">
+  <div class="list-row" style="padding:0 0 16px;">
+    <div style="width:110px;height:110px;border-radius:18px;background:linear-gradient(135deg,#FCEBEB,#F8D9D9);
+                display:flex;align-items:center;justify-content:center;font-size:44px;flex:none;">🎫</div>
+    <div style="flex:1;">
+      <div style="font-size:26px;font-weight:700;">演唱会门票两张（代排）</div>
+      <div class="hint" style="margin-top:8px;">¥1,800 · 卖家 黄牛一号 · 10-22 提交</div>
+    </div>
+    <span class="pill p-review">待审核</span>
+  </div>
+  <div class="i-label" style="margin-top:0;color:#D23030;">驳回原因（必填）</div>
+  <input class="input error" value="疑似违规代拍，不符合平台规则">
+  <div style="display:flex;gap:16px;margin-top:18px;">
+    <div class="btn btn-gray" style="flex:1;padding:16px 0;font-size:24px;">取消</div>
+    <div class="btn btn-danger" style="flex:1;padding:16px 0;font-size:24px;">确认驳回</div>
+  </div>
+  <div class="hint" style="margin-top:12px;">驳回后商品退回「草稿」，卖家修改后可重新提交</div>
+</div>
+<div class="hint" style="text-align:center;margin-bottom:36px;">仅管理员可审核；非待审核状态商品不可进入审核流（REQ-004）</div>
+</div></div><div class="caption">① 商品审核<small>通过 / 驳回决策 + 驳回原因必填</small></div></div>
+<div class="frame"><div class="phone" style="background:#F5F6FA"><div class="statusbar"><span>9:41</span><span>▮▮▯ &nbsp; ᯤ &nbsp; 🔋</span></div><div class="screen">
+<div class="navbar"><div class="t">举报 · 日志 · 统计</div><div class="hint">管理员</div></div>
+<div style="display:flex;gap:12px;margin:6px 0 18px;">
+  <div class="chip">审核</div><div class="chip on">举报 <span>3</span></div>
+  <div class="chip">日志</div><div class="chip">统计</div>
+</div>
+<div class="card" style="padding:24px 26px;margin-bottom:20px;">
+  <div style="display:flex;align-items:center;gap:14px;margin-bottom:14px;">
+    <span style="font-size:34px;">🚩</span><span style="font-size:26px;font-weight:800;">待处理举报</span>
+    <span class="pill p-violation" style="margin-left:auto;">待处理</span>
+  </div>
+  <div style="font-size:24px;font-weight:700;">演唱会门票两张（代排）</div>
+  <div class="hint" style="margin:10px 0 16px;">举报人 匿名用户 · 原因：疑似黄牛代拍 · 10-22 21:40 提交<br>该用户对同一商品无其他待处理举报 ✓</div>
+  <div style="display:flex;gap:16px;">
+    <div class="btn btn-gray" style="flex:1;padding:16px 0;font-size:24px;">驳回举报</div>
+    <div class="btn btn-danger" style="flex:1;padding:16px 0;font-size:24px;">确认违规并下架</div>
+  </div>
+</div>
+<div class="card" style="padding:24px 26px;margin-bottom:20px;">
+  <div style="display:flex;align-items:center;gap:14px;margin-bottom:18px;">
+    <span style="font-size:34px;">📊</span><span style="font-size:26px;font-weight:800;">商品统计</span>
+  </div>
+  <div style="display:flex;gap:14px;">
+    <div style="flex:1;background:#F5F6FA;border-radius:18px;padding:16px;text-align:center;">
+      <div style="font-size:32px;font-weight:800;">156</div><div class="hint" style="font-size:19px;">全部商品</div>
+    </div>
+    <div style="flex:1;background:#E5F7EC;border-radius:18px;padding:16px;text-align:center;">
+      <div style="font-size:32px;font-weight:800;color:#149A52;">89</div><div class="hint" style="font-size:19px;">在售</div>
+    </div>
+    <div style="flex:1;background:#FFF0E0;border-radius:18px;padding:16px;text-align:center;">
+      <div style="font-size:32px;font-weight:800;color:#E0741F;">12</div><div class="hint" style="font-size:19px;">已预约</div>
+    </div>
+    <div style="flex:1;background:#EDF0F4;border-radius:18px;padding:16px;text-align:center;">
+      <div style="font-size:32px;font-weight:800;color:#69738A;">32</div><div class="hint" style="font-size:19px;">已售出</div>
+    </div>
+  </div>
+  <div class="hint" style="margin-top:14px;">按分类：数码 45 · 图书 38 · 生活 31 · 运动 27 · 票券 15（空分组计 0）</div>
+</div>
+<div class="card" style="padding:24px 26px;">
+  <div style="display:flex;align-items:center;gap:14px;margin-bottom:14px;">
+    <span style="font-size:34px;">🗂️</span><span style="font-size:26px;font-weight:800;">操作日志查询</span>
+  </div>
+  <div style="display:flex;gap:12px;margin-bottom:14px;flex-wrap:wrap;">
+    <div class="chip">操作者</div><div class="chip">对象类型</div><div class="chip">操作类型</div><div class="chip on">时间段</div>
+  </div>
+  <div class="hint" style="line-height:1.9;border-top:2px solid #F1F3F7;padding-top:14px;">
+    10-23 18:02 · 卖家 骑行社 · 确认交付 · 滑板车 · <b style="color:#149A52;">成功</b><br>
+    10-22 14:08 · 买家 小柯 · 发起预约 · 民谣吉他 · <b style="color:#149A52;">成功</b><br>
+    10-22 14:09 · 买家 阿澈 · 发起预约 · 民谣吉他 · <b style="color:#D23030;">失败（已被预约）</b>
+  </div>
+</div>
+<div class="hint" style="text-align:center;margin:22px 0 36px;">非管理员访问统计 / 日志被拒绝；成功与失败的关键操作均被记录（REQ-015 / REQ-016）</div>
+</div></div><div class="caption">② 举报 · 统计 · 日志<small>单层处置 + 汇总统计 + 日志检索</small></div></div></div></body></html>

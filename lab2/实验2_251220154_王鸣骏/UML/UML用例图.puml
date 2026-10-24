@@ -1,0 +1,116 @@
+@startuml UML用例图
+' ================= 统一样式 =================
+skinparam defaultFontName "Microsoft YaHei"
+skinparam dpi 150
+skinparam shadowing false
+skinparam packageStyle rectangle
+skinparam ArrowColor #333333
+skinparam usecaseBackgroundColor #FFFFFF
+skinparam usecaseBorderColor #4A5A6A
+skinparam actorBackgroundColor #FFFFFF
+!pragma layout smetana
+
+left to right direction
+title 二手交易系统 用例图
+
+actor "注册用户" as 注册用户
+actor 买家 as Buyer
+actor 卖家 as Seller
+actor 管理员 as Admin
+
+买家 --|> 注册用户
+卖家 --|> 注册用户
+管理员 --|> 注册用户
+
+rectangle "二手交易系统" {
+  ' ---- 账户 ----
+  usecase "注册账号" as UC01
+  usecase "登录" as UC02
+  usecase "权限校验\n«拦截未授权访问»" as UC03
+
+  ' ---- 买家 ----
+  usecase "组合查询商品\n(关键词/分类/价格/状态/时间)" as UC11
+  usecase "查看商品详情\n(仅公开卖家昵称)" as UC12
+  usecase "预约商品" as UC13
+  usecase "取消本人预约" as UC14
+  usecase "确认收货" as UC15
+  usecase "收藏 / 取消收藏" as UC16
+  usecase "查看收藏列表" as UC17
+  usecase "查看我的预约" as UC18
+  usecase "举报商品" as UC19
+
+  ' ---- 卖家 ----
+  usecase "创建 / 编辑商品草稿" as UC21
+  usecase "提交审核" as UC22
+  usecase "下架在售商品" as UC23
+  usecase "确认预约" as UC24
+  usecase "拒绝预约" as UC25
+  usecase "确认交付" as UC26
+  usecase "查看我的商品\n(按状态筛选)" as UC27
+
+  ' ---- 管理员 ----
+  usecase "审核商品\n(通过 / 驳回)" as UC31
+  usecase "违规下架" as UC32
+  usecase "处理举报\n(驳回 / 确认违规)" as UC33
+  usecase "查询操作日志" as UC34
+  usecase "查看商品统计\n(状态 / 分类)" as UC35
+
+  ' ---- 被包含用例 ----
+  usecase "金额与重复提交校验" as UC41
+  usecase "状态与版本号校验\n«乐观锁»" as UC42
+  usecase "原子事务更新\n«失败整体回滚»" as UC43
+  usecase "记录操作日志" as UC44
+}
+
+' ---- 参与者与用例 ----
+注册用户 --> UC01
+注册用户 --> UC02
+
+买家 --> UC11
+买家 --> UC12
+买家 --> UC13
+买家 --> UC14
+买家 --> UC15
+买家 --> UC16
+买家 --> UC17
+买家 --> UC18
+买家 --> UC19
+
+卖家 --> UC21
+卖家 --> UC22
+卖家 --> UC23
+卖家 --> UC24
+卖家 --> UC25
+卖家 --> UC26
+卖家 --> UC27
+卖家 --> UC12
+
+管理员 --> UC31
+管理员 --> UC32
+管理员 --> UC33
+管理员 --> UC34
+管理员 --> UC35
+
+' ---- include / extend ----
+UC02 ..> UC03 : <<include>>
+UC22 ..> UC41 : <<include>>
+UC13 ..> UC42 : <<include>>
+UC14 ..> UC42 : <<include>>
+UC15 ..> UC42 : <<include>>
+UC24 ..> UC42 : <<include>>
+UC26 ..> UC42 : <<include>>
+UC13 ..> UC43 : <<include>>
+UC14 ..> UC43 : <<include>>
+UC24 ..> UC43 : <<include>>
+UC25 ..> UC43 : <<include>
+UC26 ..> UC43 : <<include>>
+UC15 ..> UC43 : <<include>>
+UC32 ..> UC44 : <<include>>
+UC31 ..> UC44 : <<include>>
+UC33 ..> UC44 : <<include>>
+note bottom of UC42
+  预约、取消、确认类用例均先校验
+  商品当前状态与版本号(REQ-012)，
+  冲突时拒绝写入并提示刷新。
+end note
+@enduml

@@ -1,0 +1,80 @@
+@startuml UML时序图
+' ================= 统一样式 =================
+skinparam defaultFontName "Microsoft YaHei"
+skinparam dpi 150
+skinparam shadowing false
+skinparam ArrowColor #333333
+skinparam SequenceLifeLineBorderColor #8899AA
+skinparam SequenceParticipantBackgroundColor #FFFFFF
+skinparam SequenceParticipantBorderColor #4A5A6A
+skinparam noteBackgroundColor #FFF8DC
+
+title 二手交易系统 时序图（并发预约与版本号冲突处理，REQ-008 / REQ-012）
+
+autonumber "<b>0."
+actor "买家A" as A
+actor "买家B" as B
+participant "商品详情页" as UI
+participant "预约服务" as RS
+participant "日志服务" as LS
+database "数据库\n(商品/预约/日志)" as DB
+
+== 两个买家先后打开同一在售商品 ==
+
+A -> UI : 打开商品详情
+UI -> RS : 查询商品详情
+RS -> DB : SELECT 商品 WHERE Id = P1
+DB --> RS : 状态 = 在售，版本号 v5
+RS --> UI : 详情(在售, v5)
+UI --> A : 展示详情与"立即预约"按钮
+
+B -> UI : 打开同一商品详情
+UI -> RS : 查询商品详情
+RS --> DB : SELECT 商品 WHERE Id = P1
+DB --> RS : 状态 = 在售，版本号 v5
+RS --> UI : 详情(在售, v5)
+
+== 并发提交预约：首个成功请求为准 ==
+
+A -> UI : 点击"立即预约"
+activate RS
+UI -> RS : reserve(P1, 买家A, 期望版本 = v5)
+RS -> DB : BEGIN TRANSACTION
+RS -> DB : UPDATE 商品 SET 状态='已预约',\n版本=v6 WHERE Id=P1 AND 状态='在售'\nAND 版本=v5 «原子条件更新»
+DB --> RS : 更新成功(影响 1 行)
+RS -> DB : INSERT 预约(待确认, 买家A, P1)\n«唯一有效预约约束»
+RS -> LS : 记录"预约发起·成功"日志
+LS -> DB : INSERT 日志
+RS --> UI : 预约成功(预约Id, 待卖家确认)
+deactivate RS
+UI --> A : 展示预约结果
+
+B -> UI : 点击"立即预约"(旧页面版本 v5)
+activate RS
+UI -> RS : reserve(P1, 买家B, 期望版本 = v5)
+RS -> DB : BEGIN TRANSACTION
+RS -> DB : UPDATE ... WHERE 状态='在售' AND 版本=v5
+DB --> RS : 更新失败(影响 0 行)\n状态已变为'已预约', 版本 = v6
+RS -> LS : 记录"预约发起·失败"日志
+LS -> DB : INSERT 日志
+RS --> UI : 拒绝：商品已被预约(409 冲突)
+deactivate RS
+UI --> B : 提示"商品状态已变化，请刷新"
+
+== 同一买家重复预约(REQ-008) ==
+
+A -> RS : reserve(P1, 买家A, v6)
+activate RS
+RS -> DB : 校验：该买家已存在 P1 的有效预约
+DB --> RS : 存在有效预约(待确认)
+RS --> A : 拒绝：您已有该商品的有效预约
+deactivate RS
+
+note over RS, DB
+  <b>事务与原子性约束(REQ-019)</b>
+  预约、取消、交易确认等关键写入中，
+  商品状态更新、预约记录写入、日志记录
+  在同一事务内完成；任一步骤失败则整体回滚，
+  不产生部分更新。
+end note
+@enduml
