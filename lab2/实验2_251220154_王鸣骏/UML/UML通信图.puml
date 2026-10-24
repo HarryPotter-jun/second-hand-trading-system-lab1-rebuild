@@ -1,0 +1,45 @@
+@startuml UML通信图
+' ================= 统一样式 =================
+skinparam defaultFontName "Microsoft YaHei"
+skinparam dpi 150
+skinparam shadowing false
+skinparam ArrowColor #333333
+skinparam objectBackgroundColor #FFFFFF
+skinparam objectBorderColor #4A5A6A
+skinparam noteBackgroundColor #FFF8DC
+!pragma layout smetana
+
+title 二手交易系统 通信图（交易完成双确认场景，REQ-009 / REQ-010）
+
+object ":卖家" as 卖家
+object ":买家" as 买家
+object ":交易服务" as 交易服务 {
+  确认交付(预约Id, 版本)
+  确认收货(预约Id)
+}
+object ":预约记录\n(已确认)" as 预约
+object ":商品\n(已预约, v)" as 商品
+object ":日志服务" as 日志
+
+卖家 --> 交易服务 : <b>1:</b> 确认交付
+买家 --> 交易服务 : <b>2:</b> 确认收货
+交易服务 --> 预约 : <b>1.1</b> 校验卖家身份\n与预约状态
+交易服务 --> 日志 : <b>1.2</b> 记录确认交付
+交易服务 --> 预约 : <b>2.1</b> 校验已交付\n与买家身份
+交易服务 --> 商品 : <b>2.3</b> 已售出\n(原子, v+1)
+交易服务 --> 预约 : <b>2.4</b> 已完成\n(原子)
+交易服务 --> 日志 : <b>2.5</b> 记录交易完成
+
+note bottom of 商品
+  <b>事务边界</b>：2.3 与 2.4 在同一事务内
+  完成（REQ-019），任一失败整体回滚；
+  成功后版本号 v+1，旧页面请求被拒绝
+  （REQ-012）。
+end note
+
+note right of 交易服务
+  <b>前置约束</b>：步骤 2 必须发生在
+  步骤 1 之后；卖家确认交付后
+  取消与拒绝入口关闭（REQ-009）。
+end note
+@enduml
