@@ -38,8 +38,9 @@ rectangle "二手交易系统" {
   usecase "查看收藏列表" as UC17
   usecase "查看我的预约" as UC18
   usecase "举报商品" as UC19
+  }
 
-  ' ---- 卖家 ----
+  package "卖家业务" #FDF0E7 {
   usecase "创建 / 编辑商品草稿" as UC21
   usecase "提交审核" as UC22
   usecase "下架在售商品" as UC23
