@@ -1,0 +1,77 @@
+@startuml UML部署图
+' ================= 统一样式 =================
+skinparam defaultFontName "Microsoft YaHei"
+skinparam dpi 150
+skinparam shadowing false
+skinparam ArrowColor #333333
+skinparam nodeBackgroundColor #FFFFFF
+skinparam nodeBorderColor #4A5A6A
+skinparam artifactBackgroundColor #F8FAFC
+skinparam artifactBorderColor #7A8CA0
+skinparam databaseBackgroundColor #FFFFFF
+skinparam packageStyle rectangle
+skinparam noteBackgroundColor #FFF8DC
+!pragma layout smetana
+
+title 二手交易系统 部署图（三层单体部署）
+
+actor "买家 / 卖家\n(手机或 PC 浏览器)" as 用户
+actor "平台管理员\n(PC 浏览器)" as 管理员
+
+node "客户端设备\n(视口 ≥ 360px)" as 客户端 {
+  artifact "响应式 Web 页面\n(登录/浏览/发布/个人中心)\nHTML + CSS + JS" as A1
+}
+
+node "Web 应用服务器\n(单体应用，如 Spring Boot)" as 应用服务器 {
+  artifact "REST 接口层\n(页面访问入口)" as A2
+  folder "业务模块" {
+    artifact "认证与权限模块" as A3
+    artifact "商品模块" as A4
+    artifact "预约与交易模块" as A5
+    artifact "收藏 / 举报模块" as A6
+    artifact "审核与管理模块" as A7
+  }
+  folder "横切组件" {
+    artifact "操作日志拦截器" as A8
+    artifact "版本并发控制\n(乐观锁)" as A9
+    artifact "参数校验组件" as A10
+  }
+}
+
+node "数据库服务器" as 数据库服务器 {
+  database "关系数据库\n(MySQL / SQLite)" as DB {
+    folder "七张业务表" {
+      artifact "用户表 / 商品表 / 预约表"
+      artifact "交易确认表 / 收藏表"
+      artifact "举报表 / 操作日志表"
+    }
+  }
+}
+
+cloud "校园网 / 互联网\nHTTPS (TLS)" as 网络
+
+用户 --> 客户端
+管理员 --> 客户端
+客户端 --> 网络 : HTTPS 请求\n(REST/JSON)
+网络 --> 应用服务器 : 443 端口
+应用服务器 --> 数据库服务器 : JDBC 连接池\n(本地局域网)
+
+note right of 应用服务器
+  <b>部署决策</b>
+  1. 课程原型规模采用<b>单体部署</b>：
+     六个业务模块同进程内调用，事务边界
+     清晰（预约/交易原子更新不需跨服务
+     分布式事务），运维成本低。
+  2. 全部页面经同一 HTTPS 入口，认证
+     拦截在 REST 接口层统一完成。
+  3. 若并发规模扩大，可将预约与交易
+     模块 (A5) 与版本并发控制 (A9)
+     优先拆分独立部署。
+end note
+
+note bottom of 数据库服务器
+  唯一性约束（手机号 / 有效预约 /
+  收藏 / 待处理举报）与事务原子性
+  由数据库层保证（REQ-013/019）。
+end note
+@enduml
