@@ -102,7 +102,7 @@ UC26 ..> UC42 : <<include>>
 UC13 ..> UC43 : <<include>>
 UC14 ..> UC43 : <<include>>
 UC24 ..> UC43 : <<include>>
-UC25 ..> UC43 : <<include>
+UC25 ..> UC43 : <<include>>
 UC26 ..> UC43 : <<include>>
 UC15 ..> UC43 : <<include>>
 UC32 ..> UC44 : <<include>>

@@ -78,5 +78,4 @@ note right of 预约状态机
      中同步更新(REQ-019)。
 end note
 
-商品状态机 ..> 预约状态机 : 预约成功时\n创建预约(待确认)
 @enduml
